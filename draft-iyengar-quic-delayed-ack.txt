@@ -74,17 +74,17 @@ Table of Contents
    2.  Motivation  . . . . . . . . . . . . . . . . . . . . . . . . .   3
    3.  Negotiating Extension Use . . . . . . . . . . . . . . . . . .   4
    4.  ACK-FREQUENCY Frame . . . . . . . . . . . . . . . . . . . . .   5
-   5.  Sending Acknowledgments . . . . . . . . . . . . . . . . . . .   6
-     5.1.  Expediting Loss and Congestion Signals  . . . . . . . . .   6
-     5.2.  Batch Processing of Packets . . . . . . . . . . . . . . .   6
-   6.  Multiple ACK-FREQUENCY Frames . . . . . . . . . . . . . . . .   6
+   5.  Multiple ACK-FREQUENCY Frames . . . . . . . . . . . . . . . .   6
+   6.  Sending Acknowledgments . . . . . . . . . . . . . . . . . . .   6
+     6.1.  Expediting Loss and Congestion Signals  . . . . . . . . .   7
+     6.2.  Batch Processing of Packets . . . . . . . . . . . . . . .   7
    7.  Computation of Probe Timeout Period . . . . . . . . . . . . .   7
-   8.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
-   9.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   7
-   10. Normative References  . . . . . . . . . . . . . . . . . . . .   7
+   8.  Security Considerations . . . . . . . . . . . . . . . . . . .   8
+   9.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   8
+   10. Normative References  . . . . . . . . . . . . . . . . . . . .   8
    Appendix A.  Change Log . . . . . . . . . . . . . . . . . . . . .   8
-   Acknowledgments . . . . . . . . . . . . . . . . . . . . . . . . .   8
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   8
+   Acknowledgments . . . . . . . . . . . . . . . . . . . . . . . . .   9
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   9
 
 1.  Introduction
 
@@ -237,6 +237,8 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                      Sequence Number (i)                    ...
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                      Packet Tolerance (i)                   ...
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                    Update Max Ack Delay (i)                 ...
@@ -244,6 +246,10 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
 
    ACK-FREQUENCY frames have a type of 0xXX, and contain the following
    fields:
+
+   Sequence Number:  A variable-length integer representing the sequence
+      number assigned to the ACK-FREQUENCY frame by the sender, see
+      Section 5.
 
    Packet Tolerance:  A variable-length integer representing the maximum
       number of ack-eliciting packets after which the receiver sends an
@@ -267,12 +273,6 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
    An endpoint MAY send ACK-FREQUENCY frames multiple times during a
    connection and with different values.
 
-   An endpoint will have committed a "max_ack_delay" value to the peer,
-   which specifies the maximum amount of time by which the endpoint will
-   delay sending acknowledgments.  When the endpoint receives an ACK-
-   FREQUENCY frame, it MUST update this maximum time to the value
-   proposed by the peer in the Update Max Ack Delay field.
-
 
 
 
@@ -282,19 +282,77 @@ Iyengar & Swett           Expires 20 July 2020                  [Page 5]
 Internet-Draft       Delaying QUIC Acknowledgements         January 2020
 
 
-5.  Sending Acknowledgments
+   An endpoint will have committed a "max_ack_delay" value to the peer,
+   which specifies the maximum amount of time by which the endpoint will
+   delay sending acknowledgments.  When the endpoint receives an ACK-
+   FREQUENCY frame, it MUST update this maximum time to the value
+   proposed by the peer in the Update Max Ack Delay field.
 
-   On receiving an ACK-FREQUENCY frame, an endpoint will have an updated
-   maximum delay for sending an acknowledgement, and a packet threshold
-   as well.  The endpoint MUST send an acknowledgement when either of
-   the two thresholds are met.  Section 5.1 and Section 5.2 section
-   describes exceptions to this strategy.
+5.  Multiple ACK-FREQUENCY Frames
+
+   An endpoint can send multiple ACK-FREQUENCY frames, and each one of
+   them can have different values.  An endpoint MUST use a sequence
+   number of 0 for the first ACK-FREQUENCY frame it constructs and
+   sends, and a strictly increasing value thereafter.
+
+   An endpoint MUST allow reordered ACK-FREQUENCY frames to be received
+   and processed, see Section 13.3 of [QUIC-TRANSPORT].
+
+   On the first received ACK-FREQUENCY frame in a connection, an
+   endpoint MUST immediately record all values from the frame.  The
+   sequence number of the frame is recorded as the largest seen sequence
+   number.  The new Packet Tolerance and Update Max Ack Delay values
+   MUST be immediately used for delaying acknowledgements; see
+   Section 6.
+
+   On subsequently received ACK-FREQUENCY frames, the endpoint MUST
+   check if this is a more recent frame than any previous ones, as
+   follows:
+
+   *  If the enclosing packet number is not greater than the largest one
+      seen so far, the endpoint MUST ignore this frame.
+
+   *  If the sequence number in the frame is greater than the largest
+      one seen so far, the endpoint MUST immediately replace old
+      recorded state with values received in this frame.  The endpoint
+      MUST start using the new values immediately for delaying
+      acknowledgements; see Section 6.  The endpoint MUST also replace
+      the recorded sequence number.
+
+6.  Sending Acknowledgments
+
+   Prior to receiving an ACK-FREQUENCY frame, endpoints send
+   acknowledgements as specified in Section 13.2.1 of [QUIC-TRANSPORT].
+
+   On receiving an ACK-FREQUENCY frame and updating its recorded
+   "max_ack_delay" and "Packet Tolerance" values (Section 5), the
+   endpoint MUST send an acknowledgement when one of the following
+   conditions are met:
+
+
+
+
+
+Iyengar & Swett           Expires 20 July 2020                  [Page 6]
+
+Internet-Draft       Delaying QUIC Acknowledgements         January 2020
+
+
+   *  Since the last acknowledgement was sent, the number of received
+      ack-eliciting packets is greater than or equal to the recorded
+      "Packet Tolerance".
+
+   *  Since the last acknowledgement was sent, "max_ack_delay" amount of
+      time has passed.
+
+   Section 6.1 and Section 6.2 section describes exceptions to this
+   strategy.
 
    An endpoint is expected to bundle acknowledgements when possible.
    Every time an acknowledgement is sent, bundled or otherwise, all
    counters and timers related to delaying of acknowledgments are reset.
 
-5.1.  Expediting Loss and Congestion Signals
+6.1.  Expediting Loss and Congestion Signals
 
    To expedite loss detection, endpoints SHOULD send an acknowledgement
    immediately on receiving an ack-eliciting packet that is out of
@@ -307,7 +365,7 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
    codepoint in the IP header SHOULD be acknowledged immediately, to
    reduce the peer's response time to congestion events.
 
-5.2.  Batch Processing of Packets
+6.2.  Batch Processing of Packets
 
    For performance reasons, an endpoint can receive incoming packets
    from the underlying platform in a batch of multiple packets.  This
@@ -319,38 +377,6 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
    whether a threshold has been met and an acknowledgement is to be sent
    in response.
 
-6.  Multiple ACK-FREQUENCY Frames
-
-   An endpoint can send multiple ACK-FREQUENCY frames, and each one of
-   them can have different values.
-
-   If a received ACK-FREQUENCY frame is the first one in this
-   connection, the endpoint MUST immediately record any values from the
-   frame and start using them.  The endpoint MUST also record the packet
-   number of the enclosing packet.
-
-
-
-
-
-Iyengar & Swett           Expires 20 July 2020                  [Page 6]
-
-Internet-Draft       Delaying QUIC Acknowledgements         January 2020
-
-
-   If a received ACK-FREQUENCY frame is not the first one in this
-   connection, the endpoint MUST check if this is a more recent ACK-
-   FREQUENCY frame than any previous ones, as follows:
-
-   *  If the enclosing packet number is greater than the recorded one,
-      the endpoint MUST immediately replace old recorded state with
-      values received in this frame.  The endpoint MUST also replace the
-      value of the recorded packet number with that of the enclosing
-      packet.
-
-   *  If the enclosing packet number is not greater than the recorded
-      one, the endpoint MUST ignore this ACK-FREQUENCY frame.
-
 7.  Computation of Probe Timeout Period
 
    On sending an update to the peer's "max_ack_delay", an endpoint can
@@ -358,6 +384,15 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
    period; see Section 5.2.1 of [QUIC-RECOVERY].  The endpoint MUST
    however wait until the ACK-FREQUENCY frame that carries this new
    value is acknowledged by the peer.
+
+
+
+
+
+Iyengar & Swett           Expires 20 July 2020                  [Page 7]
+
+Internet-Draft       Delaying QUIC Acknowledgements         January 2020
+
 
    Until the frame is acknowledged, the endpoint MUST use the greater of
    the current "max_ack_delay" and the value that is in flight when
@@ -387,13 +422,6 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
               <https://tools.ietf.org/html/draft-ietf-quic-recovery-
               latest>.
 
-
-
-Iyengar & Swett           Expires 20 July 2020                  [Page 7]
-
-Internet-Draft       Delaying QUIC Acknowledgements         January 2020
-
-
    [QUIC-TRANSPORT]
               Iyengar, J., Ed. and M. Thomson, Ed., "QUIC: A UDP-Based
               Multiplexed and Secure Transport", Work in Progress,
@@ -414,6 +442,13 @@ Appendix A.  Change Log
 
       *RFC Editor's Note:* Please remove this section prior to
       publication of a final version of this document.
+
+
+
+Iyengar & Swett           Expires 20 July 2020                  [Page 8]
+
+Internet-Draft       Delaying QUIC Acknowledgements         January 2020
+
 
 Acknowledgments
 
@@ -445,4 +480,25 @@ Authors' Addresses
 
 
 
-Iyengar & Swett           Expires 20 July 2020                  [Page 8]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Iyengar & Swett           Expires 20 July 2020                  [Page 9]

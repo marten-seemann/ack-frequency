@@ -935,18 +935,18 @@ code and issues list for this draft can be found at
             <p id="section-toc.1-1.4.1"><a href="#section-4" class="xref">4</a>.  <a href="#name-ack-frequency-frame" class="xref">ACK-FREQUENCY Frame</a><a href="#section-toc.1-1.4.1" class="pilcrow">¶</a></p>
 </li>
 <li class="toc ulEmpty" id="section-toc.1-1.5">
-            <p id="section-toc.1-1.5.1"><a href="#section-5" class="xref">5</a>.  <a href="#name-sending-acknowledgments" class="xref">Sending Acknowledgments</a><a href="#section-toc.1-1.5.1" class="pilcrow">¶</a></p>
-<ul class="toc ulEmpty">
-<li class="toc ulEmpty" id="section-toc.1-1.5.2.1">
-                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="xref">5.1</a>.  <a href="#name-expediting-loss-and-congest" class="xref">Expediting Loss and Congestion Signals</a><a href="#section-toc.1-1.5.2.1.1" class="pilcrow">¶</a></p>
-</li>
-<li class="toc ulEmpty" id="section-toc.1-1.5.2.2">
-                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="xref">5.2</a>.  <a href="#name-batch-processing-of-packets" class="xref">Batch Processing of Packets</a><a href="#section-toc.1-1.5.2.2.1" class="pilcrow">¶</a></p>
-</li>
-</ul>
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="xref">5</a>.  <a href="#name-multiple-ack-frequency-fram" class="xref">Multiple ACK-FREQUENCY Frames</a><a href="#section-toc.1-1.5.1" class="pilcrow">¶</a></p>
 </li>
 <li class="toc ulEmpty" id="section-toc.1-1.6">
-            <p id="section-toc.1-1.6.1"><a href="#section-6" class="xref">6</a>.  <a href="#name-multiple-ack-frequency-fram" class="xref">Multiple ACK-FREQUENCY Frames</a><a href="#section-toc.1-1.6.1" class="pilcrow">¶</a></p>
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="xref">6</a>.  <a href="#name-sending-acknowledgments" class="xref">Sending Acknowledgments</a><a href="#section-toc.1-1.6.1" class="pilcrow">¶</a></p>
+<ul class="toc ulEmpty">
+<li class="toc ulEmpty" id="section-toc.1-1.6.2.1">
+                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="xref">6.1</a>.  <a href="#name-expediting-loss-and-congest" class="xref">Expediting Loss and Congestion Signals</a><a href="#section-toc.1-1.6.2.1.1" class="pilcrow">¶</a></p>
+</li>
+<li class="toc ulEmpty" id="section-toc.1-1.6.2.2">
+                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="xref">6.2</a>.  <a href="#name-batch-processing-of-packets" class="xref">Batch Processing of Packets</a><a href="#section-toc.1-1.6.2.2.1" class="pilcrow">¶</a></p>
+</li>
+</ul>
 </li>
 <li class="toc ulEmpty" id="section-toc.1-1.7">
             <p id="section-toc.1-1.7.1"><a href="#section-7" class="xref">7</a>.  <a href="#name-computation-of-probe-timeou" class="xref">Computation of Probe Timeout Period</a><a href="#section-toc.1-1.7.1" class="pilcrow">¶</a></p>
@@ -1101,6 +1101,8 @@ signals its tolerance to its peer using an ACK-FREQUENCY frame, shown below:<a h
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                      Sequence Number (i)                    ...
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                      Packet Tolerance (i)                   ...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                    Update Max Ack Delay (i)                 ...
@@ -1109,19 +1111,24 @@ signals its tolerance to its peer using an ACK-FREQUENCY frame, shown below:<a h
 </div>
 <p id="section-4-3">ACK-FREQUENCY frames have a type of 0xXX, and contain the following fields:<a href="#section-4-3" class="pilcrow">¶</a></p>
 <dl class="dlParallel" id="section-4-4">
-        <dt id="section-4-4.1">Packet Tolerance:</dt>
+        <dt id="section-4-4.1">Sequence Number:</dt>
 <dd id="section-4-4.2">
+  A variable-length integer representing the sequence number assigned to the
+ACK-FREQUENCY frame by the sender, see <a href="#multiple-frames" class="xref">Section 5</a>.<a href="#section-4-4.2" class="pilcrow">¶</a>
+</dd>
+<dt id="section-4-4.3">Packet Tolerance:</dt>
+<dd id="section-4-4.4">
   A variable-length integer representing the maximum number of ack-eliciting
 packets after which the receiver sends an acknowledgement. A value of 1 will
 result in an acknowledgement being sent for every ack-eliciting packet
-received. A value of 0 is invalid.<a href="#section-4-4.2" class="pilcrow">¶</a>
+received. A value of 0 is invalid.<a href="#section-4-4.4" class="pilcrow">¶</a>
 </dd>
-<dt id="section-4-4.3">Update Max Ack Delay:</dt>
-<dd id="section-4-4.4">
+<dt id="section-4-4.5">Update Max Ack Delay:</dt>
+<dd id="section-4-4.6">
   A variable-length integer representing an update to the peer's <code>max_ack_delay</code>
 transport parameter (Section 18.2 of <span>[<a href="#QUIC-TRANSPORT" class="xref">QUIC-TRANSPORT</a>]</span>). The value of this
 field is in microseconds. Any value smaller than the <code>min_ack_delay</code>
-advertised by this endpoint is invalid.<a href="#section-4-4.4" class="pilcrow">¶</a>
+advertised by this endpoint is invalid.<a href="#section-4-4.6" class="pilcrow">¶</a>
 </dd>
 </dl>
 <p id="section-4-5">Receipt of an empty ACK-FREQUENCY frame or invalid values in an ACK-FREQUENCY
@@ -1137,72 +1144,88 @@ update this maximum time to the value proposed by the peer in the Update Max Ack
 Delay field.<a href="#section-4-8" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="sending-acknowledgments">
+<div id="multiple-frames">
 <section id="section-5">
-      <h2 id="name-sending-acknowledgments">
-<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-sending-acknowledgments" class="section-name selfRef">Sending Acknowledgments</a>
+      <h2 id="name-multiple-ack-frequency-fram">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-multiple-ack-frequency-fram" class="section-name selfRef">Multiple ACK-FREQUENCY Frames</a>
       </h2>
-<p id="section-5-1">On receiving an ACK-FREQUENCY frame, an endpoint will have an updated maximum
-delay for sending an acknowledgement, and a packet threshold as well. The
-endpoint MUST send an acknowledgement when either of the two thresholds are
-met. <a href="#loss" class="xref">Section 5.1</a> and <a href="#batch" class="xref">Section 5.2</a> section describes exceptions to this strategy.<a href="#section-5-1" class="pilcrow">¶</a></p>
-<p id="section-5-2">An endpoint is expected to bundle acknowledgements when possible. Every time an
+<p id="section-5-1">An endpoint can send multiple ACK-FREQUENCY frames, and each one of them can
+have different values. An endpoint MUST use a sequence number of 0 for the first
+ACK-FREQUENCY frame it constructs and sends, and a strictly increasing value
+thereafter.<a href="#section-5-1" class="pilcrow">¶</a></p>
+<p id="section-5-2">An endpoint MUST allow reordered ACK-FREQUENCY frames to be received and
+processed, see Section 13.3 of <span>[<a href="#QUIC-TRANSPORT" class="xref">QUIC-TRANSPORT</a>]</span>.<a href="#section-5-2" class="pilcrow">¶</a></p>
+<p id="section-5-3">On the first received ACK-FREQUENCY frame in a connection, an endpoint MUST
+immediately record all values from the frame. The sequence number of the frame
+is recorded as the largest seen sequence number. The new Packet Tolerance and
+Update Max Ack Delay values MUST be immediately used for delaying
+acknowledgements; see <a href="#sending" class="xref">Section 6</a>.<a href="#section-5-3" class="pilcrow">¶</a></p>
+<p id="section-5-4">On subsequently received ACK-FREQUENCY frames, the endpoint MUST check if this
+is a more recent frame than any previous ones, as follows:<a href="#section-5-4" class="pilcrow">¶</a></p>
+<ul>
+<li id="section-5-5.1">If the enclosing packet number is not greater than the largest one seen so
+far, the endpoint MUST ignore this frame.<a href="#section-5-5.1" class="pilcrow">¶</a>
+</li>
+<li id="section-5-5.2">If the sequence number in the frame is greater than the largest one seen so
+far, the endpoint MUST immediately replace old recorded state with values
+received in this frame. The endpoint MUST start using the new values
+immediately for delaying acknowledgements; see <a href="#sending" class="xref">Section 6</a>. The endpoint MUST
+also replace the recorded sequence number.<a href="#section-5-5.2" class="pilcrow">¶</a>
+</li>
+</ul>
+</section>
+</div>
+<div id="sending">
+<section id="section-6">
+      <h2 id="name-sending-acknowledgments">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-sending-acknowledgments" class="section-name selfRef">Sending Acknowledgments</a>
+      </h2>
+<p id="section-6-1">Prior to receiving an ACK-FREQUENCY frame, endpoints send acknowledgements as
+specified in Section 13.2.1 of <span>[<a href="#QUIC-TRANSPORT" class="xref">QUIC-TRANSPORT</a>]</span>.<a href="#section-6-1" class="pilcrow">¶</a></p>
+<p id="section-6-2">On receiving an ACK-FREQUENCY frame and updating its recorded <code>max_ack_delay</code>
+and <code>Packet Tolerance</code> values (<a href="#multiple-frames" class="xref">Section 5</a>), the endpoint MUST send an
+acknowledgement when one of the following conditions are met:<a href="#section-6-2" class="pilcrow">¶</a></p>
+<ul>
+<li id="section-6-3.1">Since the last acknowledgement was sent, the number of received ack-eliciting
+packets is greater than or equal to the recorded <code>Packet Tolerance</code>.<a href="#section-6-3.1" class="pilcrow">¶</a>
+</li>
+<li id="section-6-3.2">Since the last acknowledgement was sent, <code>max_ack_delay</code> amount of time has
+passed.<a href="#section-6-3.2" class="pilcrow">¶</a>
+</li>
+</ul>
+<p id="section-6-4"><a href="#loss" class="xref">Section 6.1</a> and <a href="#batch" class="xref">Section 6.2</a> section describes exceptions to this strategy.<a href="#section-6-4" class="pilcrow">¶</a></p>
+<p id="section-6-5">An endpoint is expected to bundle acknowledgements when possible. Every time an
 acknowledgement is sent, bundled or otherwise, all counters and timers related
-to delaying of acknowledgments are reset.<a href="#section-5-2" class="pilcrow">¶</a></p>
+to delaying of acknowledgments are reset.<a href="#section-6-5" class="pilcrow">¶</a></p>
 <div id="loss">
-<section id="section-5.1">
+<section id="section-6.1">
         <h3 id="name-expediting-loss-and-congest">
-<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-expediting-loss-and-congest" class="section-name selfRef">Expediting Loss and Congestion Signals</a>
+<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-expediting-loss-and-congest" class="section-name selfRef">Expediting Loss and Congestion Signals</a>
         </h3>
-<p id="section-5.1-1">To expedite loss detection, endpoints SHOULD send an acknowledgement immediately
+<p id="section-6.1-1">To expedite loss detection, endpoints SHOULD send an acknowledgement immediately
 on receiving an ack-eliciting packet that is out of order. Endpoints MAY
 continue sending acknowledgements immediately on each subsequently received
 packet, but they SHOULD return to using delay thresholds as specified above
 within a period of 1/8 x RTT, unless more ack-eliciting packets are received out
-of order.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
-<p id="section-5.1-2">Similarly, packets marked with the ECN Congestion Experienced (CE) codepoint in
+of order.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
+<p id="section-6.1-2">Similarly, packets marked with the ECN Congestion Experienced (CE) codepoint in
 the IP header SHOULD be acknowledged immediately, to reduce the peer's response
-time to congestion events.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
+time to congestion events.<a href="#section-6.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="batch">
-<section id="section-5.2">
+<section id="section-6.2">
         <h3 id="name-batch-processing-of-packets">
-<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-batch-processing-of-packets" class="section-name selfRef">Batch Processing of Packets</a>
+<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-batch-processing-of-packets" class="section-name selfRef">Batch Processing of Packets</a>
         </h3>
-<p id="section-5.2-1">For performance reasons, an endpoint can receive incoming packets from the
+<p id="section-6.2-1">For performance reasons, an endpoint can receive incoming packets from the
 underlying platform in a batch of multiple packets. This batch can contain
-enough packets to cause multiple acknowledgements to be sent.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
-<p id="section-5.2-2">To avoid sending multiple acknowledgements in rapid succession, an endpoint MAY
+enough packets to cause multiple acknowledgements to be sent.<a href="#section-6.2-1" class="pilcrow">¶</a></p>
+<p id="section-6.2-2">To avoid sending multiple acknowledgements in rapid succession, an endpoint MAY
 process all packets in a batch before determining whether a threshold has been
-met and an acknowledgement is to be sent in response.<a href="#section-5.2-2" class="pilcrow">¶</a></p>
+met and an acknowledgement is to be sent in response.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
-</section>
-</div>
-<div id="multiple-ack-frequency-frames">
-<section id="section-6">
-      <h2 id="name-multiple-ack-frequency-fram">
-<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-multiple-ack-frequency-fram" class="section-name selfRef">Multiple ACK-FREQUENCY Frames</a>
-      </h2>
-<p id="section-6-1">An endpoint can send multiple ACK-FREQUENCY frames, and each one of them can
-have different values.<a href="#section-6-1" class="pilcrow">¶</a></p>
-<p id="section-6-2">If a received ACK-FREQUENCY frame is the first one in this connection, the
-endpoint MUST immediately record any values from the frame and start using
-them. The endpoint MUST also record the packet number of the enclosing packet.<a href="#section-6-2" class="pilcrow">¶</a></p>
-<p id="section-6-3">If a received ACK-FREQUENCY frame is not the first one in this connection, the
-endpoint MUST check if this is a more recent ACK-FREQUENCY frame than any
-previous ones, as follows:<a href="#section-6-3" class="pilcrow">¶</a></p>
-<ul>
-<li id="section-6-4.1">If the enclosing packet number is greater than the recorded one, the endpoint
-MUST immediately replace old recorded state with values received in this
-frame. The endpoint MUST also replace the value of the recorded packet number
-with that of the enclosing packet.<a href="#section-6-4.1" class="pilcrow">¶</a>
-</li>
-<li id="section-6-4.2">If the enclosing packet number is not greater than the recorded one, the
-endpoint MUST ignore this ACK-FREQUENCY frame.<a href="#section-6-4.2" class="pilcrow">¶</a>
-</li>
-</ul>
 </section>
 </div>
 <div id="computation-of-probe-timeout-period">
