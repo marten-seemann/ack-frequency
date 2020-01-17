@@ -78,9 +78,10 @@ Table of Contents
      5.1.  Expediting Loss and Congestion Signals  . . . . . . . . .   6
      5.2.  Batch Processing of Packets . . . . . . . . . . . . . . .   6
    6.  Multiple ACK-FREQUENCY Frames . . . . . . . . . . . . . . . .   6
-   7.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
-   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   7
-   9.  Normative References  . . . . . . . . . . . . . . . . . . . .   7
+   7.  Computation of Probe Timeout Period . . . . . . . . . . . . .   7
+   8.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
+   9.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   7
+   10. Normative References  . . . . . . . . . . . . . . . . . . . .   7
    Appendix A.  Change Log . . . . . . . . . . . . . . . . . . . . .   8
    Acknowledgments . . . . . . . . . . . . . . . . . . . . . . . . .   8
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   8
@@ -104,7 +105,6 @@ Table of Contents
 
    An "acknowledgement packet" refers to a QUIC packet that contains
    only an ACK frame.
-
 
 
 
@@ -209,7 +209,7 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
    receipt of a min_ack_delay that is greater than the received
    max_ack_delay as a connection error of type PROTOCOL_VIOLATION.  Note
    that while the endpoint's max_ack_delay transport parameter is in
-   milliseconds (Section 18.2 in [QUIC-TRANSPORT]), min_ack_delay is
+   milliseconds (Section 18.2 of [QUIC-TRANSPORT]), min_ack_delay is
    specified in microseconds.
 
 
@@ -253,26 +253,26 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
 
    Update Max Ack Delay:  A variable-length integer representing an
       update to the peer's "max_ack_delay" transport parameter
-      (Section 18.2 in [QUIC-TRANSPORT]).  The value of this field is in
-      microseconds.  Any value smaller than the min_ack_delay advertised
-      by this endpoint is invalid.
+      (Section 18.2 of [QUIC-TRANSPORT]).  The value of this field is in
+      microseconds.  Any value smaller than the "min_ack_delay"
+      advertised by this endpoint is invalid.
 
-   Receipt of invalid values in an ACK-FREQUENCY frame MUST be treated
-   as a connection error of type PROTOCOL_VIOLATION.
+   Receipt of an empty ACK-FREQUENCY frame or invalid values in an ACK-
+   FREQUENCY frame MUST be treated as a connection error of type
+   PROTOCOL_VIOLATION.
 
    ACK-FREQUENCY frames are ack-eliciting.  However, their loss does not
    require retransmission.
 
-   An endpoint MUST NOT send an empty ACK-FREQUENCY frame.  Endpoints
-   MUST treat receipt of an empty ACK-FREQUENCY frame as a connection
-   error of type PROTOCOL_VIOLATION.
-
    An endpoint MAY send ACK-FREQUENCY frames multiple times during a
    connection and with different values.
 
-   An endpoint will have committed a max_ack_delay value to the peer,
+   An endpoint will have committed a "max_ack_delay" value to the peer,
    which specifies the maximum amount of time by which the endpoint will
    delay sending acknowledgments.  When the endpoint receives an ACK-
+   FREQUENCY frame, it MUST update this maximum time to the value
+   proposed by the peer in the Update Max Ack Delay field.
+
 
 
 
@@ -281,9 +281,6 @@ Iyengar & Swett           Expires 20 July 2020                  [Page 5]
 
 Internet-Draft       Delaying QUIC Acknowledgements         January 2020
 
-
-   FREQUENCY frame, it MUST update this maximum time to the value
-   proposed by the peer in the Update Max Ack Delay field.
 
 5.  Sending Acknowledgments
 
@@ -329,6 +326,9 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
 
    If a received ACK-FREQUENCY frame is the first one in this
    connection, the endpoint MUST immediately record any values from the
+   frame and start using them.  The endpoint MUST also record the packet
+   number of the enclosing packet.
+
 
 
 
@@ -337,9 +337,6 @@ Iyengar & Swett           Expires 20 July 2020                  [Page 6]
 
 Internet-Draft       Delaying QUIC Acknowledgements         January 2020
 
-
-   frame and start using them.  The endpoint MUST also record the packet
-   number of the enclosing packet.
 
    If a received ACK-FREQUENCY frame is not the first one in this
    connection, the endpoint MUST check if this is a more recent ACK-
@@ -354,15 +351,34 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
    *  If the enclosing packet number is not greater than the recorded
       one, the endpoint MUST ignore this ACK-FREQUENCY frame.
 
-7.  Security Considerations
+7.  Computation of Probe Timeout Period
+
+   On sending an update to the peer's "max_ack_delay", an endpoint can
+   use this new value in later computations of its Probe Timeout (PTO)
+   period; see Section 5.2.1 of [QUIC-RECOVERY].  The endpoint MUST
+   however wait until the ACK-FREQUENCY frame that carries this new
+   value is acknowledged by the peer.
+
+   Until the frame is acknowledged, the endpoint MUST use the greater of
+   the current "max_ack_delay" and the value that is in flight when
+   computing the PTO period.  Doing so avoids spurious PTOs that can be
+   caused by an update that increases the peer's "max_ack_delay".
+
+   While it is expected that endpoints will have only one ACK-FREQUENCY
+   frame in flight at any given time, this extension does not prohibit
+   having more than one in flight.  Generally, when using
+   "max_ack_delay" for PTO computations, endpoints MUST use the maximum
+   of the current value and all those in flight.
+
+8.  Security Considerations
 
    TBD.
 
-8.  IANA Considerations
+9.  IANA Considerations
 
    TBD.
 
-9.  Normative References
+10.  Normative References
 
    [QUIC-RECOVERY]
               Iyengar, J., Ed. and I. Swett, Ed., "QUIC Loss Detection
@@ -370,6 +386,13 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
               draft-ietf-quic-recovery-latest,
               <https://tools.ietf.org/html/draft-ietf-quic-recovery-
               latest>.
+
+
+
+Iyengar & Swett           Expires 20 July 2020                  [Page 7]
+
+Internet-Draft       Delaying QUIC Acknowledgements         January 2020
+
 
    [QUIC-TRANSPORT]
               Iyengar, J., Ed. and M. Thomson, Ed., "QUIC: A UDP-Based
@@ -386,13 +409,6 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/info/rfc8174>.
-
-
-
-Iyengar & Swett           Expires 20 July 2020                  [Page 7]
-
-Internet-Draft       Delaying QUIC Acknowledgements         January 2020
-
 
 Appendix A.  Change Log
 
@@ -416,22 +432,6 @@ Authors' Addresses
    Google
 
    Email: ian.swett@google.com
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
