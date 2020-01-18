@@ -76,13 +76,14 @@ Table of Contents
    4.  ACK-FREQUENCY Frame . . . . . . . . . . . . . . . . . . . . .   5
    5.  Multiple ACK-FREQUENCY Frames . . . . . . . . . . . . . . . .   6
    6.  Sending Acknowledgments . . . . . . . . . . . . . . . . . . .   6
-     6.1.  Expediting Loss and Congestion Signals  . . . . . . . . .   7
-     6.2.  Batch Processing of Packets . . . . . . . . . . . . . . .   7
-   7.  Computation of Probe Timeout Period . . . . . . . . . . . . .   7
+     6.1.  Response to Reordering  . . . . . . . . . . . . . . . . .   7
+     6.2.  Expediting Congestion Signals . . . . . . . . . . . . . .   7
+     6.3.  Batch Processing of Packets . . . . . . . . . . . . . . .   7
+   7.  Computation of Probe Timeout Period . . . . . . . . . . . . .   8
    8.  Security Considerations . . . . . . . . . . . . . . . . . . .   8
    9.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   8
    10. Normative References  . . . . . . . . . . . . . . . . . . . .   8
-   Appendix A.  Change Log . . . . . . . . . . . . . . . . . . . . .   8
+   Appendix A.  Change Log . . . . . . . . . . . . . . . . . . . . .   9
    Acknowledgments . . . . . . . . . . . . . . . . . . . . . . . . .   9
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   9
 
@@ -105,7 +106,6 @@ Table of Contents
 
    An "acknowledgement packet" refers to a QUIC packet that contains
    only an ACK frame.
-
 
 
 
@@ -345,27 +345,36 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
    *  Since the last acknowledgement was sent, "max_ack_delay" amount of
       time has passed.
 
-   Section 6.1 and Section 6.2 section describes exceptions to this
+   Section 6.1, Section 6.2, and Section 6.3 describe exceptions to this
    strategy.
 
    An endpoint is expected to bundle acknowledgements when possible.
    Every time an acknowledgement is sent, bundled or otherwise, all
    counters and timers related to delaying of acknowledgments are reset.
 
-6.1.  Expediting Loss and Congestion Signals
+6.1.  Response to Reordering
 
-   To expedite loss detection, endpoints SHOULD send an acknowledgement
-   immediately on receiving an ack-eliciting packet that is out of
-   order.  Endpoints MAY continue sending acknowledgements immediately
-   on each subsequently received packet, but they SHOULD return to using
-   delay thresholds as specified above within a period of 1/8 x RTT,
-   unless more ack-eliciting packets are received out of order.
+   As specified in Section 13.3.1 of [QUIC-TRANSPORT], endpoints SHOULD
+   send an acknowledgement immediately on receiving a reordered ack-
+   eliciting packet, unless the peer has sent a
+   "disable_ack_on_reordering" transport parameter, described below:
 
-   Similarly, packets marked with the ECN Congestion Experienced (CE)
-   codepoint in the IP header SHOULD be acknowledged immediately, to
-   reduce the peer's response time to congestion events.
+   disable_ack_on_reordering (0xXXXX):  This optional transport
+      parameter is sent by an endpoint that is reordering tolerant or
+      expects reordering in the connection.  An endpoint that receives
+      this transport parameter MUST NOT send an immediate
+      acknowledgement when reordering is observed, and MUST continue
+      delaying acknowledgements as per Section 6.  This parameter is a
+      zero-length value.
 
-6.2.  Batch Processing of Packets
+6.2.  Expediting Congestion Signals
+
+   As specified in Section 13.3.1 of [QUIC-TRANSPORT], an endpoint
+   SHOULD immediately acknowledge packets marked with the ECN Congestion
+   Experienced (CE) codepoint in the IP header.  Doing so reduces the
+   peer's response time to congestion events.
+
+6.3.  Batch Processing of Packets
 
    For performance reasons, an endpoint can receive incoming packets
    from the underlying platform in a batch of multiple packets.  This
@@ -377,15 +386,6 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
    whether a threshold has been met and an acknowledgement is to be sent
    in response.
 
-7.  Computation of Probe Timeout Period
-
-   On sending an update to the peer's "max_ack_delay", an endpoint can
-   use this new value in later computations of its Probe Timeout (PTO)
-   period; see Section 5.2.1 of [QUIC-RECOVERY].  The endpoint MUST
-   however wait until the ACK-FREQUENCY frame that carries this new
-   value is acknowledged by the peer.
-
-
 
 
 
@@ -393,6 +393,14 @@ Iyengar & Swett           Expires 20 July 2020                  [Page 7]
 
 Internet-Draft       Delaying QUIC Acknowledgements         January 2020
 
+
+7.  Computation of Probe Timeout Period
+
+   On sending an update to the peer's "max_ack_delay", an endpoint can
+   use this new value in later computations of its Probe Timeout (PTO)
+   period; see Section 5.2.1 of [QUIC-RECOVERY].  The endpoint MUST
+   however wait until the ACK-FREQUENCY frame that carries this new
+   value is acknowledged by the peer.
 
    Until the frame is acknowledged, the endpoint MUST use the greater of
    the current "max_ack_delay" and the value that is in flight when
@@ -434,6 +442,14 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
 
+
+
+
+Iyengar & Swett           Expires 20 July 2020                  [Page 8]
+
+Internet-Draft       Delaying QUIC Acknowledgements         January 2020
+
+
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/info/rfc8174>.
@@ -442,13 +458,6 @@ Appendix A.  Change Log
 
       *RFC Editor's Note:* Please remove this section prior to
       publication of a final version of this document.
-
-
-
-Iyengar & Swett           Expires 20 July 2020                  [Page 8]
-
-Internet-Draft       Delaying QUIC Acknowledgements         January 2020
-
 
 Acknowledgments
 
@@ -467,15 +476,6 @@ Authors' Addresses
    Google
 
    Email: ian.swett@google.com
-
-
-
-
-
-
-
-
-
 
 
 

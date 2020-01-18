@@ -941,10 +941,13 @@ code and issues list for this draft can be found at
             <p id="section-toc.1-1.6.1"><a href="#section-6" class="xref">6</a>.  <a href="#name-sending-acknowledgments" class="xref">Sending Acknowledgments</a><a href="#section-toc.1-1.6.1" class="pilcrow">¶</a></p>
 <ul class="toc ulEmpty">
 <li class="toc ulEmpty" id="section-toc.1-1.6.2.1">
-                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="xref">6.1</a>.  <a href="#name-expediting-loss-and-congest" class="xref">Expediting Loss and Congestion Signals</a><a href="#section-toc.1-1.6.2.1.1" class="pilcrow">¶</a></p>
+                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="xref">6.1</a>.  <a href="#name-response-to-reordering" class="xref">Response to Reordering</a><a href="#section-toc.1-1.6.2.1.1" class="pilcrow">¶</a></p>
 </li>
 <li class="toc ulEmpty" id="section-toc.1-1.6.2.2">
-                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="xref">6.2</a>.  <a href="#name-batch-processing-of-packets" class="xref">Batch Processing of Packets</a><a href="#section-toc.1-1.6.2.2.1" class="pilcrow">¶</a></p>
+                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="xref">6.2</a>.  <a href="#name-expediting-congestion-signa" class="xref">Expediting Congestion Signals</a><a href="#section-toc.1-1.6.2.2.1" class="pilcrow">¶</a></p>
+</li>
+<li class="toc ulEmpty" id="section-toc.1-1.6.2.3">
+                <p id="section-toc.1-1.6.2.3.1"><a href="#section-6.3" class="xref">6.3</a>.  <a href="#name-batch-processing-of-packets" class="xref">Batch Processing of Packets</a><a href="#section-toc.1-1.6.2.3.1" class="pilcrow">¶</a></p>
 </li>
 </ul>
 </li>
@@ -1193,37 +1196,54 @@ packets is greater than or equal to the recorded <code>Packet Tolerance</code>.<
 passed.<a href="#section-6-3.2" class="pilcrow">¶</a>
 </li>
 </ul>
-<p id="section-6-4"><a href="#loss" class="xref">Section 6.1</a> and <a href="#batch" class="xref">Section 6.2</a> section describes exceptions to this strategy.<a href="#section-6-4" class="pilcrow">¶</a></p>
+<p id="section-6-4"><a href="#reordering" class="xref">Section 6.1</a>, <a href="#congestion" class="xref">Section 6.2</a>, and <a href="#batch" class="xref">Section 6.3</a> describe exceptions to this
+strategy.<a href="#section-6-4" class="pilcrow">¶</a></p>
 <p id="section-6-5">An endpoint is expected to bundle acknowledgements when possible. Every time an
 acknowledgement is sent, bundled or otherwise, all counters and timers related
 to delaying of acknowledgments are reset.<a href="#section-6-5" class="pilcrow">¶</a></p>
-<div id="loss">
+<div id="reordering">
 <section id="section-6.1">
-        <h3 id="name-expediting-loss-and-congest">
-<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-expediting-loss-and-congest" class="section-name selfRef">Expediting Loss and Congestion Signals</a>
+        <h3 id="name-response-to-reordering">
+<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-response-to-reordering" class="section-name selfRef">Response to Reordering</a>
         </h3>
-<p id="section-6.1-1">To expedite loss detection, endpoints SHOULD send an acknowledgement immediately
-on receiving an ack-eliciting packet that is out of order. Endpoints MAY
-continue sending acknowledgements immediately on each subsequently received
-packet, but they SHOULD return to using delay thresholds as specified above
-within a period of 1/8 x RTT, unless more ack-eliciting packets are received out
-of order.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
-<p id="section-6.1-2">Similarly, packets marked with the ECN Congestion Experienced (CE) codepoint in
-the IP header SHOULD be acknowledged immediately, to reduce the peer's response
-time to congestion events.<a href="#section-6.1-2" class="pilcrow">¶</a></p>
+<p id="section-6.1-1">As specified in Section 13.3.1 of <span>[<a href="#QUIC-TRANSPORT" class="xref">QUIC-TRANSPORT</a>]</span>, endpoints SHOULD send an
+acknowledgement immediately on receiving a reordered ack-eliciting packet,
+unless the peer has sent a <code>disable_ack_on_reordering</code> transport parameter,
+described below:<a href="#section-6.1-1" class="pilcrow">¶</a></p>
+<dl class="dlParallel" id="section-6.1-2">
+          <dt id="section-6.1-2.1">disable_ack_on_reordering (0xXXXX):</dt>
+<dd id="section-6.1-2.2">
+  This optional transport parameter is sent by an endpoint that is reordering
+tolerant or expects reordering in the connection. An endpoint that receives
+this transport parameter MUST NOT send an immediate acknowledgement when
+reordering is observed, and MUST continue delaying acknowledgements as per
+<a href="#sending" class="xref">Section 6</a>. This parameter is a zero-length value.<a href="#section-6.1-2.2" class="pilcrow">¶</a>
+</dd>
+</dl>
+</section>
+</div>
+<div id="congestion">
+<section id="section-6.2">
+        <h3 id="name-expediting-congestion-signa">
+<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-expediting-congestion-signa" class="section-name selfRef">Expediting Congestion Signals</a>
+        </h3>
+<p id="section-6.2-1">As specified in Section 13.3.1 of <span>[<a href="#QUIC-TRANSPORT" class="xref">QUIC-TRANSPORT</a>]</span>, an endpoint SHOULD
+immediately acknowledge packets marked with the ECN Congestion Experienced (CE)
+codepoint in the IP header. Doing so reduces the peer's response time to
+congestion events.<a href="#section-6.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="batch">
-<section id="section-6.2">
+<section id="section-6.3">
         <h3 id="name-batch-processing-of-packets">
-<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-batch-processing-of-packets" class="section-name selfRef">Batch Processing of Packets</a>
+<a href="#section-6.3" class="section-number selfRef">6.3. </a><a href="#name-batch-processing-of-packets" class="section-name selfRef">Batch Processing of Packets</a>
         </h3>
-<p id="section-6.2-1">For performance reasons, an endpoint can receive incoming packets from the
+<p id="section-6.3-1">For performance reasons, an endpoint can receive incoming packets from the
 underlying platform in a batch of multiple packets. This batch can contain
-enough packets to cause multiple acknowledgements to be sent.<a href="#section-6.2-1" class="pilcrow">¶</a></p>
-<p id="section-6.2-2">To avoid sending multiple acknowledgements in rapid succession, an endpoint MAY
+enough packets to cause multiple acknowledgements to be sent.<a href="#section-6.3-1" class="pilcrow">¶</a></p>
+<p id="section-6.3-2">To avoid sending multiple acknowledgements in rapid succession, an endpoint MAY
 process all packets in a batch before determining whether a threshold has been
-met and an acknowledgement is to be sent in response.<a href="#section-6.2-2" class="pilcrow">¶</a></p>
+met and an acknowledgement is to be sent in response.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
