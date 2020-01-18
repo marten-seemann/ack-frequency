@@ -9,7 +9,7 @@ Expires: 20 July 2020                                             Google
                                                          17 January 2020
 
 
-     A Generalized Mechanism for Delaying Acknowledgements in QUIC
+            Sender Control of Acknowledgement Delays in QUIC
                      draft-iyengar-quic-delayed-ack
 
 Abstract
@@ -55,7 +55,7 @@ Copyright Notice
 
 Iyengar & Swett           Expires 20 July 2020                  [Page 1]
 
-Internet-Draft       Delaying QUIC Acknowledgements         January 2020
+Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -111,7 +111,7 @@ Table of Contents
 
 Iyengar & Swett           Expires 20 July 2020                  [Page 2]
 
-Internet-Draft       Delaying QUIC Acknowledgements         January 2020
+Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
 
    This document uses terms, definitions, and notational conventions
@@ -167,7 +167,7 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
 
 Iyengar & Swett           Expires 20 July 2020                  [Page 3]
 
-Internet-Draft       Delaying QUIC Acknowledgements         January 2020
+Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
 
    *  Congestion controllers that are purely window based and strictly
@@ -223,7 +223,7 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
 
 Iyengar & Swett           Expires 20 July 2020                  [Page 4]
 
-Internet-Draft       Delaying QUIC Acknowledgements         January 2020
+Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
 
 4.  ACK-FREQUENCY Frame
@@ -279,7 +279,7 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
 
 Iyengar & Swett           Expires 20 July 2020                  [Page 5]
 
-Internet-Draft       Delaying QUIC Acknowledgements         January 2020
+Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
 
    An endpoint will have committed a "max_ack_delay" value to the peer,
@@ -335,7 +335,7 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
 
 Iyengar & Swett           Expires 20 July 2020                  [Page 6]
 
-Internet-Draft       Delaying QUIC Acknowledgements         January 2020
+Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
 
    *  Since the last acknowledgement was sent, the number of received
@@ -391,7 +391,7 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
 
 Iyengar & Swett           Expires 20 July 2020                  [Page 7]
 
-Internet-Draft       Delaying QUIC Acknowledgements         January 2020
+Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
 
 7.  Computation of Probe Timeout Period
@@ -447,7 +447,7 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
 
 Iyengar & Swett           Expires 20 July 2020                  [Page 8]
 
-Internet-Draft       Delaying QUIC Acknowledgements         January 2020
+Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
 
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
