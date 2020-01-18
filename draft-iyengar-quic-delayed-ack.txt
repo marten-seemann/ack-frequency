@@ -115,8 +115,7 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
 
    This document uses terms, definitions, and notational conventions
-   described in Section XX of [QUIC-TRANSPORT].  Frame diagrams in this
-   document use the format described in Section XX of [QUIC-TRANSPORT].
+   described in Section 1.2 and Section 1.3 of [QUIC-TRANSPORT].
 
 2.  Motivation
 
@@ -161,7 +160,8 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
       The sender often needs frequent acknowledgments during this phase;
       see slow start and hystart.
 
-
+   *  Congestion controllers that are purely window based and strictly
+      adherent to packet conservation, such as the one defined in
 
 
 
@@ -170,8 +170,6 @@ Iyengar & Swett           Expires 20 July 2020                  [Page 3]
 Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
 
-   *  Congestion controllers that are purely window based and strictly
-      adherent to packet conservation, such as the one defined in
       [QUIC-RECOVERY], rely on receipt of acknowledgments to move the
       congestion window forward and release additional data.  Such
       controllers suffer performance penalties when acknowledgements are
@@ -196,7 +194,8 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 3.  Negotiating Extension Use
 
    Endpoints advertise their support of the extension described in this
-   document by sending the following transport parameter:
+   document by sending the following transport parameter (Section 7.2 of
+   [QUIC-TRANSPORT]):
 
    min_ack_delay (0xXXXX):  A variable-length integer representing the
       minimum amount of time in microseconds by which the endpoint can
@@ -212,7 +211,8 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
    milliseconds (Section 18.2 of [QUIC-TRANSPORT]), min_ack_delay is
    specified in microseconds.
 
-
+   This Transport Parameter is encoded as per Section 18 of
+   [QUIC-TRANSPORT].
 
 
 
@@ -237,6 +237,8 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                            0xXX (i)                         ...
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                      Sequence Number (i)                    ...
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                      Packet Tolerance (i)                   ...
@@ -244,8 +246,9 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
    |                    Update Max Ack Delay (i)                 ...
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-   ACK-FREQUENCY frames have a type of 0xXX, and contain the following
-   fields:
+   Following the common frame format described in Section 12.4 of
+   [QUIC-TRANSPORT], ACK-FREQUENCY frames have a type of 0xXX, and
+   contain the following fields:
 
    Sequence Number:  A variable-length integer representing the sequence
       number assigned to the ACK-FREQUENCY frame by the sender, see
@@ -270,9 +273,6 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
    ACK-FREQUENCY frames are ack-eliciting.  However, their loss does not
    require retransmission.
 
-   An endpoint MAY send ACK-FREQUENCY frames multiple times during a
-   connection and with different values.
-
 
 
 
@@ -281,6 +281,9 @@ Iyengar & Swett           Expires 20 July 2020                  [Page 5]
 
 Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
+
+   An endpoint MAY send ACK-FREQUENCY frames multiple times during a
+   connection and with different values.
 
    An endpoint will have committed a "max_ack_delay" value to the peer,
    which specifies the maximum amount of time by which the endpoint will
@@ -326,9 +329,6 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
    On receiving an ACK-FREQUENCY frame and updating its recorded
    "max_ack_delay" and "Packet Tolerance" values (Section 5), the
-   endpoint MUST send an acknowledgement when one of the following
-   conditions are met:
-
 
 
 
@@ -337,6 +337,9 @@ Iyengar & Swett           Expires 20 July 2020                  [Page 6]
 
 Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
+
+   endpoint MUST send an acknowledgement when one of the following
+   conditions are met:
 
    *  Since the last acknowledgement was sent, the number of received
       ack-eliciting packets is greater than or equal to the recorded
@@ -364,7 +367,8 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
       expects the connection to experience reordering.  An endpoint that
       receives this transport parameter MUST NOT make the exception of
       sending an immediate acknowledgement when reordering is observed.
-      This parameter is a zero-length value.
+      This parameter is a zero-length value, and is encoded as per
+      Section 18 of [QUIC-TRANSPORT].
 
 6.2.  Expediting Congestion Signals
 
@@ -382,10 +386,6 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
    To avoid sending multiple acknowledgements in rapid succession, an
    endpoint MAY process all packets in a batch before determining
-   whether a threshold has been met and an acknowledgement is to be sent
-   in response.
-
-
 
 
 
@@ -393,6 +393,9 @@ Iyengar & Swett           Expires 20 July 2020                  [Page 7]
 
 Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
+
+   whether a threshold has been met and an acknowledgement is to be sent
+   in response.
 
 7.  Computation of Probe Timeout Period
 
@@ -439,9 +442,6 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
-              DOI 10.17487/RFC2119, March 1997,
-              <https://www.rfc-editor.org/info/rfc2119>.
-
 
 
 
@@ -449,6 +449,9 @@ Iyengar & Swett           Expires 20 July 2020                  [Page 8]
 
 Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
+
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
 
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
@@ -476,9 +479,6 @@ Authors' Addresses
    Google
 
    Email: ian.swett@google.com
-
-
-
 
 
 
