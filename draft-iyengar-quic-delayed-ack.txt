@@ -361,11 +361,10 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
 
    disable_ack_on_reordering (0xXXXX):  This optional transport
       parameter is sent by an endpoint that is reordering tolerant or
-      expects reordering in the connection.  An endpoint that receives
-      this transport parameter MUST NOT send an immediate
-      acknowledgement when reordering is observed, and MUST continue
-      delaying acknowledgements as per Section 6.  This parameter is a
-      zero-length value.
+      expects the connection to experience reordering.  An endpoint that
+      receives this transport parameter MUST NOT make the exception of
+      sending an immediate acknowledgement when reordering is observed.
+      This parameter is a zero-length value.
 
 6.2.  Expediting Congestion Signals
 
@@ -385,6 +384,7 @@ Internet-Draft       Delaying QUIC Acknowledgements         January 2020
    endpoint MAY process all packets in a batch before determining
    whether a threshold has been met and an acknowledgement is to be sent
    in response.
+
 
 
 

@@ -1214,10 +1214,10 @@ described below:<a href="#section-6.1-1" class="pilcrow">¶</a></p>
           <dt id="section-6.1-2.1">disable_ack_on_reordering (0xXXXX):</dt>
 <dd id="section-6.1-2.2">
   This optional transport parameter is sent by an endpoint that is reordering
-tolerant or expects reordering in the connection. An endpoint that receives
-this transport parameter MUST NOT send an immediate acknowledgement when
-reordering is observed, and MUST continue delaying acknowledgements as per
-<a href="#sending" class="xref">Section 6</a>. This parameter is a zero-length value.<a href="#section-6.1-2.2" class="pilcrow">¶</a>
+tolerant or expects the connection to experience reordering. An endpoint that
+receives this transport parameter MUST NOT make the exception of sending an
+immediate acknowledgement when reordering is observed. This parameter is a
+zero-length value.<a href="#section-6.1-2.2" class="pilcrow">¶</a>
 </dd>
 </dl>
 </section>
