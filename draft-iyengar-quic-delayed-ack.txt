@@ -14,7 +14,7 @@ Expires: 20 July 2020                                             Google
 
 Abstract
 
-   This document describes a QUIC extension for an endpoint to influence
+   This document describes a QUIC extension for an endpoint to control
    its peer's delaying of acknowledgements.
 
 Note to Readers
@@ -89,7 +89,7 @@ Table of Contents
 
 1.  Introduction
 
-   This document describes a QUIC extension for an endpoint to influence
+   This document describes a QUIC extension for an endpoint to control
    its peer's delaying of acknowledgements.
 
 1.1.  Terms and Definitions
