@@ -5,8 +5,8 @@
 QUIC                                                          J. Iyengar
 Internet-Draft                                                    Fastly
 Intended status: Standards Track                                I. Swett
-Expires: 20 July 2020                                             Google
-                                                         17 January 2020
+Expires: 24 July 2020                                             Google
+                                                         21 January 2020
 
 
             Sender Control of Acknowledgement Delays in QUIC
@@ -42,7 +42,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 20 July 2020.
+   This Internet-Draft will expire on 24 July 2020.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Iyengar & Swett           Expires 20 July 2020                  [Page 1]
+Iyengar & Swett           Expires 24 July 2020                  [Page 1]
 
 Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Iyengar & Swett           Expires 20 July 2020                  [Page 2]
+Iyengar & Swett           Expires 24 July 2020                  [Page 2]
 
 Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
@@ -134,9 +134,9 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
       at a data receiver.  Experience shows that this cost reduction can
       be significant for high bandwidth connections.
 
-   *  Similarly, receiving UDP packets can also be CPU intensive, and
-      reducing acknowledgement frequency reduces this cost at a data
-      sender.
+   *  Similarly, receiving and processing UDP packets can also be CPU
+      intensive, and reducing acknowledgement frequency reduces this
+      cost at a data sender.
 
    *  Severely asymmetric link technologies, such as DOCSIS, LTE, and
       satellite links, connection throughput in the data direction
@@ -155,7 +155,7 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
       acknowledgments dictates how long it takes for losses to be
       detected at the sender.
 
-   *  Starting a connection up quickly without inducing much queue is
+   *  Starting a connection up quickly without inducing excess queue is
       important for latency reduction, for both short and long flows.
       The sender often needs frequent acknowledgments during this phase;
       see slow start and hystart.
@@ -165,7 +165,7 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
 
 
-Iyengar & Swett           Expires 20 July 2020                  [Page 3]
+Iyengar & Swett           Expires 24 July 2020                  [Page 3]
 
 Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
@@ -177,19 +177,17 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
       flows, congestion controllers that are not window-based, such as
       BBR, can perform well with very few acknowledgements per RTT.
 
-   *  New sender startup mechanisms, such as paced chirping, and
-      congestion controllers will need a way for the sender to increase
-      the frequency of acknowledgements when fine-grained feedback is
-      required.
+   *  New sender startup mechanisms, such as paced chirping, will need a
+      way for the sender to increase the frequency of acknowledgements
+      when fine-grained feedback is required.
 
    [QUIC-TRANSPORT] currently specifies a simple delayed acknowledgement
    mechanism that a receiver can use: send an acknowledgement for every
-   other packet, and for every packet (for a short while) when
-   reordering is observed.  This simple mechanism does not allow a
-   sender to signal its constraints, which in turn limits what a
-   receiver can do to delay acknowledgements and reduce acknowledgement
-   frequency.  This extension provides a mechanism to solve this
-   problem.
+   other packet, and for every packet when reordering is observed.  This
+   simple mechanism does not allow a sender to signal its constraints,
+   which in turn limits what a receiver can do to delay acknowledgements
+   and reduce acknowledgement frequency.  This extension provides a
+   mechanism to solve this problem.
 
 3.  Negotiating Extension Use
 
@@ -199,7 +197,7 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
    min_ack_delay (0xXXXX):  A variable-length integer representing the
       minimum amount of time in microseconds by which the endpoint can
-      delay an acknowledgement.  Values of 0 and 2^14 or greater are
+      delay an acknowledgement.  Values of 0 and 2^24 or greater are
       invalid, and receipt of these values MUST be treated as a
       connection error of type PROTOCOL_VIOLATION.
 
@@ -221,7 +219,9 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
 
 
-Iyengar & Swett           Expires 20 July 2020                  [Page 4]
+
+
+Iyengar & Swett           Expires 24 July 2020                  [Page 4]
 
 Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
@@ -251,8 +251,8 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
    contain the following fields:
 
    Sequence Number:  A variable-length integer representing the sequence
-      number assigned to the ACK-FREQUENCY frame by the sender, see
-      Section 5.
+      number assigned to the ACK-FREQUENCY frame by the sender to allow
+      receivers to ignore obsolete frames, see Section 5.
 
    Packet Tolerance:  A variable-length integer representing the maximum
       number of ack-eliciting packets after which the receiver sends an
@@ -266,24 +266,21 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
       microseconds.  Any value smaller than the "min_ack_delay"
       advertised by this endpoint is invalid.
 
-   Receipt of an empty ACK-FREQUENCY frame or invalid values in an ACK-
-   FREQUENCY frame MUST be treated as a connection error of type
-   PROTOCOL_VIOLATION.
+   Receipt of invalid values in an ACK-FREQUENCY frame MUST be treated
+   as a connection error of type FRAME_ENCODING_ERROR.
 
    ACK-FREQUENCY frames are ack-eliciting.  However, their loss does not
    require retransmission.
 
+   An endpoint MAY send ACK-FREQUENCY frames multiple times during a
+   connection and with different values.
 
 
 
-
-Iyengar & Swett           Expires 20 July 2020                  [Page 5]
+Iyengar & Swett           Expires 24 July 2020                  [Page 5]
 
 Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
-
-   An endpoint MAY send ACK-FREQUENCY frames multiple times during a
-   connection and with different values.
 
    An endpoint will have committed a "max_ack_delay" value to the peer,
    which specifies the maximum amount of time by which the endpoint will
@@ -308,19 +305,19 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
    MUST be immediately used for delaying acknowledgements; see
    Section 6.
 
-   On subsequently received ACK-FREQUENCY frames, the endpoint MUST
-   check if this is a more recent frame than any previous ones, as
+   On a subsequently received ACK-FREQUENCY frame, the endpoint MUST
+   check if this frame is more recent than any previous ones, as
    follows:
 
-   *  If the enclosing packet number is not greater than the largest one
+   *  If the frame's sequence number is not greater than the largest one
       seen so far, the endpoint MUST ignore this frame.
 
-   *  If the sequence number in the frame is greater than the largest
-      one seen so far, the endpoint MUST immediately replace old
-      recorded state with values received in this frame.  The endpoint
-      MUST start using the new values immediately for delaying
-      acknowledgements; see Section 6.  The endpoint MUST also replace
-      the recorded sequence number.
+   *  If the frame's sequence number is greater than the largest one
+      seen so far, the endpoint MUST immediately replace old recorded
+      state with values received in this frame.  The endpoint MUST start
+      using the new values immediately for delaying acknowledgements;
+      see Section 6.  The endpoint MUST also replace the recorded
+      sequence number.
 
 6.  Sending Acknowledgments
 
@@ -329,17 +326,17 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
    On receiving an ACK-FREQUENCY frame and updating its recorded
    "max_ack_delay" and "Packet Tolerance" values (Section 5), the
+   endpoint MUST send an acknowledgement when one of the following
+   conditions are met:
 
 
 
 
-Iyengar & Swett           Expires 20 July 2020                  [Page 6]
+
+Iyengar & Swett           Expires 24 July 2020                  [Page 6]
 
 Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
-
-   endpoint MUST send an acknowledgement when one of the following
-   conditions are met:
 
    *  Since the last acknowledgement was sent, the number of received
       ack-eliciting packets is greater than or equal to the recorded
@@ -386,16 +383,16 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
    To avoid sending multiple acknowledgements in rapid succession, an
    endpoint MAY process all packets in a batch before determining
+   whether a threshold has been met and an acknowledgement is to be sent
+   in response.
 
 
 
-Iyengar & Swett           Expires 20 July 2020                  [Page 7]
+
+Iyengar & Swett           Expires 24 July 2020                  [Page 7]
 
 Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
-
-   whether a threshold has been met and an acknowledgement is to be sent
-   in response.
 
 7.  Computation of Probe Timeout Period
 
@@ -442,16 +439,16 @@ Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
 
 
 
-Iyengar & Swett           Expires 20 July 2020                  [Page 8]
+
+Iyengar & Swett           Expires 24 July 2020                  [Page 8]
 
 Internet-Draft        QUIC Delayed Acknowledgements         January 2020
 
-
-              DOI 10.17487/RFC2119, March 1997,
-              <https://www.rfc-editor.org/info/rfc2119>.
 
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
@@ -501,4 +498,7 @@ Authors' Addresses
 
 
 
-Iyengar & Swett           Expires 20 July 2020                  [Page 9]
+
+
+
+Iyengar & Swett           Expires 24 July 2020                  [Page 9]
