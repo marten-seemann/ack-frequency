@@ -816,11 +816,11 @@ table.left {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">QUIC Delayed Acknowledgements</td>
-<td class="right">January 2020</td>
+<td class="right">February 2020</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Iyengar &amp; Swett</td>
-<td class="center">Expires 24 July 2020</td>
+<td class="center">Expires 8 August 2020</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -833,12 +833,12 @@ table.left {
 <dd class="internet-draft">draft-iyengar-quic-delayed-ack</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2020-01-21" class="published">21 January 2020</time>
+<time datetime="2020-02-05" class="published">5 February 2020</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2020-07-24">24 July 2020</time></dd>
+<dd class="expires"><time datetime="2020-08-08">8 August 2020</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -888,7 +888,7 @@ code and issues list for this draft can be found at
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 24 July 2020.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 8 August 2020.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -932,10 +932,10 @@ code and issues list for this draft can be found at
             <p id="section-toc.1-1.3.1"><a href="#section-3" class="xref">3</a>.  <a href="#name-negotiating-extension-use" class="xref">Negotiating Extension Use</a><a href="#section-toc.1-1.3.1" class="pilcrow">¶</a></p>
 </li>
 <li class="toc ulEmpty" id="section-toc.1-1.4">
-            <p id="section-toc.1-1.4.1"><a href="#section-4" class="xref">4</a>.  <a href="#name-ack-frequency-frame" class="xref">ACK-FREQUENCY Frame</a><a href="#section-toc.1-1.4.1" class="pilcrow">¶</a></p>
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="xref">4</a>.  <a href="#name-ack_frequency-frame" class="xref">ACK_FREQUENCY Frame</a><a href="#section-toc.1-1.4.1" class="pilcrow">¶</a></p>
 </li>
 <li class="toc ulEmpty" id="section-toc.1-1.5">
-            <p id="section-toc.1-1.5.1"><a href="#section-5" class="xref">5</a>.  <a href="#name-multiple-ack-frequency-fram" class="xref">Multiple ACK-FREQUENCY Frames</a><a href="#section-toc.1-1.5.1" class="pilcrow">¶</a></p>
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="xref">5</a>.  <a href="#name-multiple-ack_frequency-fram" class="xref">Multiple ACK_FREQUENCY Frames</a><a href="#section-toc.1-1.5.1" class="pilcrow">¶</a></p>
 </li>
 <li class="toc ulEmpty" id="section-toc.1-1.6">
             <p id="section-toc.1-1.6.1"><a href="#section-6" class="xref">6</a>.  <a href="#name-sending-acknowledgments" class="xref">Sending Acknowledgments</a><a href="#section-toc.1-1.6.1" class="pilcrow">¶</a></p>
@@ -1041,7 +1041,7 @@ detected at the sender.<a href="#section-2-5.1" class="pilcrow">¶</a>
 </li>
 <li id="section-2-5.2">Starting a connection up quickly without inducing excess queue is important
 for latency reduction, for both short and long flows. The sender often needs
-frequent acknowledgments during this phase; see slow start and hystart.<a href="#section-2-5.2" class="pilcrow">¶</a>
+more frequent acknowledgments during this phase.<a href="#section-2-5.2" class="pilcrow">¶</a>
 </li>
 <li id="section-2-5.3">Congestion controllers that are purely window based and strictly adherent to
 packet conservation, such as the one defined in <span>[<a href="#QUIC-RECOVERY" class="xref">QUIC-RECOVERY</a>]</span>, rely on
@@ -1051,9 +1051,8 @@ acknowledgements are not sent frequently enough.  On the other hand, for
 long-running flows, congestion controllers that are not window-based, such as
 BBR, can perform well with very few acknowledgements per RTT.<a href="#section-2-5.3" class="pilcrow">¶</a>
 </li>
-<li id="section-2-5.4">New sender startup mechanisms, such as paced chirping, will need a way for the
-sender to increase the frequency of acknowledgements when fine-grained
-feedback is required.<a href="#section-2-5.4" class="pilcrow">¶</a>
+<li id="section-2-5.4">New sender startup mechanisms will need a way for the sender to increase
+the frequency of acknowledgements when fine-grained feedback is required.<a href="#section-2-5.4" class="pilcrow">¶</a>
 </li>
 </ul>
 <p id="section-2-6"><span>[<a href="#QUIC-TRANSPORT" class="xref">QUIC-TRANSPORT</a>]</span> currently specifies a simple delayed acknowledgement
@@ -1072,7 +1071,7 @@ This extension provides a mechanism to solve this problem.<a href="#section-2-6"
 <p id="section-3-1">Endpoints advertise their support of the extension described in this document by
 sending the following transport parameter (Section 7.2 of <span>[<a href="#QUIC-TRANSPORT" class="xref">QUIC-TRANSPORT</a>]</span>):<a href="#section-3-1" class="pilcrow">¶</a></p>
 <dl class="dlParallel" id="section-3-2">
-        <dt id="section-3-2.1">min_ack_delay (0xXXXX):</dt>
+        <dt id="section-3-2.1">min_ack_delay (0xDE1A):</dt>
 <dd id="section-3-2.2">
   A variable-length integer representing the minimum amount of time in
 microseconds by which the endpoint can delay an acknowledgement. Values of 0
@@ -1089,21 +1088,21 @@ is specified in microseconds.<a href="#section-3-3" class="pilcrow">¶</a></p>
 <p id="section-3-4">This Transport Parameter is encoded as per Section 18 of <span>[<a href="#QUIC-TRANSPORT" class="xref">QUIC-TRANSPORT</a>]</span>.<a href="#section-3-4" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="ack-frequency-frame">
+<div id="ackfrequency-frame">
 <section id="section-4">
-      <h2 id="name-ack-frequency-frame">
-<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-ack-frequency-frame" class="section-name selfRef">ACK-FREQUENCY Frame</a>
+      <h2 id="name-ack_frequency-frame">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-ack_frequency-frame" class="section-name selfRef">ACK_FREQUENCY Frame</a>
       </h2>
 <p id="section-4-1">Delaying acknowledgements as much as possible reduces both work done by the
 endpoints and network load. An endpoint's loss detection and congestion control
 mechanisms however need to be tolerant of this delay at the peer. An endpoint
-signals its tolerance to its peer using an ACK-FREQUENCY frame, shown below:<a href="#section-4-1" class="pilcrow">¶</a></p>
+signals its tolerance to its peer using an ACK_FREQUENCY frame, shown below:<a href="#section-4-1" class="pilcrow">¶</a></p>
 <div class="artwork art-text alignLeft" id="section-4-2">
 <pre>
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                            0xXX (i)                         ...
+|                            0xAF (i)                         ...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                      Sequence Number (i)                    ...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1111,16 +1110,18 @@ signals its tolerance to its peer using an ACK-FREQUENCY frame, shown below:<a h
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                    Update Max Ack Delay (i)                 ...
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+| Ignore Order (8)|
++-+-+-+-+-+-+-+-+-+
 </pre><a href="#section-4-2" class="pilcrow">¶</a>
 </div>
 <p id="section-4-3">Following the common frame format described in Section 12.4 of
-<span>[<a href="#QUIC-TRANSPORT" class="xref">QUIC-TRANSPORT</a>]</span>, ACK-FREQUENCY frames have a type of 0xXX, and contain the
+<span>[<a href="#QUIC-TRANSPORT" class="xref">QUIC-TRANSPORT</a>]</span>, ACK_FREQUENCY frames have a type of 0xAF, and contain the
 following fields:<a href="#section-4-3" class="pilcrow">¶</a></p>
 <dl class="dlParallel" id="section-4-4">
         <dt id="section-4-4.1">Sequence Number:</dt>
 <dd id="section-4-4.2">
   A variable-length integer representing the sequence number assigned to the
-ACK-FREQUENCY frame by the sender to allow receivers to ignore obsolete
+ACK_FREQUENCY frame by the sender to allow receivers to ignore obsolete
 frames, see <a href="#multiple-frames" class="xref">Section 5</a>.<a href="#section-4-4.2" class="pilcrow">¶</a>
 </dd>
 <dt id="section-4-4.3">Packet Tolerance:</dt>
@@ -1137,37 +1138,44 @@ transport parameter (Section 18.2 of <span>[<a href="#QUIC-TRANSPORT" class="xre
 field is in microseconds. Any value smaller than the <code>min_ack_delay</code>
 advertised by this endpoint is invalid.<a href="#section-4-4.6" class="pilcrow">¶</a>
 </dd>
+<dt id="section-4-4.7">Ignore Order:</dt>
+<dd id="section-4-4.8">
+  An 8-bit field representing a boolean truth value. This field MUST have the
+value 0x00 (representing <code>false</code>) or 0x01 (representing <code>true</code>). This field
+can be set to <code>true</code> by an endpoint that does not wish to receive an immediate
+acknowledgement when the peer observes reordering (<a href="#reordering" class="xref">Section 6.1</a>).<a href="#section-4-4.8" class="pilcrow">¶</a>
+</dd>
 </dl>
-<p id="section-4-5">Receipt of invalid values in an ACK-FREQUENCY frame MUST be treated as a
+<p id="section-4-5">Receipt of invalid values in an ACK_FREQUENCY frame MUST be treated as a
 connection error of type FRAME_ENCODING_ERROR.<a href="#section-4-5" class="pilcrow">¶</a></p>
-<p id="section-4-6">ACK-FREQUENCY frames are ack-eliciting. However, their loss does not require
+<p id="section-4-6">ACK_FREQUENCY frames are ack-eliciting. However, their loss does not require
 retransmission.<a href="#section-4-6" class="pilcrow">¶</a></p>
-<p id="section-4-7">An endpoint MAY send ACK-FREQUENCY frames multiple times during a connection and
+<p id="section-4-7">An endpoint MAY send ACK_FREQUENCY frames multiple times during a connection and
 with different values.<a href="#section-4-7" class="pilcrow">¶</a></p>
 <p id="section-4-8">An endpoint will have committed a <code>max_ack_delay</code> value to the peer, which
 specifies the maximum amount of time by which the endpoint will delay sending
-acknowledgments. When the endpoint receives an ACK-FREQUENCY frame, it MUST
+acknowledgments. When the endpoint receives an ACK_FREQUENCY frame, it MUST
 update this maximum time to the value proposed by the peer in the Update Max Ack
 Delay field.<a href="#section-4-8" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="multiple-frames">
 <section id="section-5">
-      <h2 id="name-multiple-ack-frequency-fram">
-<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-multiple-ack-frequency-fram" class="section-name selfRef">Multiple ACK-FREQUENCY Frames</a>
+      <h2 id="name-multiple-ack_frequency-fram">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-multiple-ack_frequency-fram" class="section-name selfRef">Multiple ACK_FREQUENCY Frames</a>
       </h2>
-<p id="section-5-1">An endpoint can send multiple ACK-FREQUENCY frames, and each one of them can
-have different values. An endpoint MUST use a sequence number of 0 for the first
-ACK-FREQUENCY frame it constructs and sends, and a strictly increasing value
-thereafter.<a href="#section-5-1" class="pilcrow">¶</a></p>
-<p id="section-5-2">An endpoint MUST allow reordered ACK-FREQUENCY frames to be received and
+<p id="section-5-1">An endpoint can send multiple ACK_FREQUENCY frames, and each one of them can
+have different values in all fields. An endpoint MUST use a sequence number of 0
+for the first ACK_FREQUENCY frame it constructs and sends, and a strictly
+increasing value thereafter.<a href="#section-5-1" class="pilcrow">¶</a></p>
+<p id="section-5-2">An endpoint MUST allow reordered ACK_FREQUENCY frames to be received and
 processed, see Section 13.3 of <span>[<a href="#QUIC-TRANSPORT" class="xref">QUIC-TRANSPORT</a>]</span>.<a href="#section-5-2" class="pilcrow">¶</a></p>
-<p id="section-5-3">On the first received ACK-FREQUENCY frame in a connection, an endpoint MUST
+<p id="section-5-3">On the first received ACK_FREQUENCY frame in a connection, an endpoint MUST
 immediately record all values from the frame. The sequence number of the frame
 is recorded as the largest seen sequence number. The new Packet Tolerance and
 Update Max Ack Delay values MUST be immediately used for delaying
 acknowledgements; see <a href="#sending" class="xref">Section 6</a>.<a href="#section-5-3" class="pilcrow">¶</a></p>
-<p id="section-5-4">On a subsequently received ACK-FREQUENCY frame, the endpoint MUST check if this
+<p id="section-5-4">On a subsequently received ACK_FREQUENCY frame, the endpoint MUST check if this
 frame is more recent than any previous ones, as follows:<a href="#section-5-4" class="pilcrow">¶</a></p>
 <ul>
 <li id="section-5-5.1">If the frame's sequence number is not greater than the largest one seen so
@@ -1187,9 +1195,9 @@ recorded sequence number.<a href="#section-5-5.2" class="pilcrow">¶</a>
       <h2 id="name-sending-acknowledgments">
 <a href="#section-6" class="section-number selfRef">6. </a><a href="#name-sending-acknowledgments" class="section-name selfRef">Sending Acknowledgments</a>
       </h2>
-<p id="section-6-1">Prior to receiving an ACK-FREQUENCY frame, endpoints send acknowledgements as
+<p id="section-6-1">Prior to receiving an ACK_FREQUENCY frame, endpoints send acknowledgements as
 specified in Section 13.2.1 of <span>[<a href="#QUIC-TRANSPORT" class="xref">QUIC-TRANSPORT</a>]</span>.<a href="#section-6-1" class="pilcrow">¶</a></p>
-<p id="section-6-2">On receiving an ACK-FREQUENCY frame and updating its recorded <code>max_ack_delay</code>
+<p id="section-6-2">On receiving an ACK_FREQUENCY frame and updating its recorded <code>max_ack_delay</code>
 and <code>Packet Tolerance</code> values (<a href="#multiple-frames" class="xref">Section 5</a>), the endpoint MUST send an
 acknowledgement when one of the following conditions are met:<a href="#section-6-2" class="pilcrow">¶</a></p>
 <ul>
@@ -1210,20 +1218,18 @@ to delaying of acknowledgments are reset.<a href="#section-6-5" class="pilcrow">
         <h3 id="name-response-to-reordering">
 <a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-response-to-reordering" class="section-name selfRef">Response to Reordering</a>
         </h3>
-<p id="section-6.1-1">As specified in Section 13.3.1 of <span>[<a href="#QUIC-TRANSPORT" class="xref">QUIC-TRANSPORT</a>]</span>, endpoints SHOULD send an
-acknowledgement immediately on receiving a reordered ack-eliciting packet,
-unless the peer has sent a <code>disable_ack_on_reordering</code> transport parameter,
-described below:<a href="#section-6.1-1" class="pilcrow">¶</a></p>
-<dl class="dlParallel" id="section-6.1-2">
-          <dt id="section-6.1-2.1">disable_ack_on_reordering (0xXXXX):</dt>
-<dd id="section-6.1-2.2">
-  This optional transport parameter is sent by an endpoint that is reordering
-tolerant or expects the connection to experience reordering. An endpoint that
-receives this transport parameter MUST NOT make the exception of sending an
-immediate acknowledgement when reordering is observed. This parameter is a
-zero-length value, and is encoded as per Section 18 of <span>[<a href="#QUIC-TRANSPORT" class="xref">QUIC-TRANSPORT</a>]</span>.<a href="#section-6.1-2.2" class="pilcrow">¶</a>
-</dd>
-</dl>
+<p id="section-6.1-1">As specified in Section 13.3.1 of <span>[<a href="#QUIC-TRANSPORT" class="xref">QUIC-TRANSPORT</a>]</span>, endpoints are expected to
+send an acknowledgement immediately on receiving a reordered ack-eliciting
+packet. This extension modifies this behavior.<a href="#section-6.1-1" class="pilcrow">¶</a></p>
+<p id="section-6.1-2">If the endpoint has not yet received an ACK_FREQUENCY frame, or if the most
+recent frame received from the peer has an <code>Ignore Order</code> value of <code>false</code>
+(0x00), the endpoint MUST immediately acknowledge any subsequent packets that
+are received out of order.<a href="#section-6.1-2" class="pilcrow">¶</a></p>
+<p id="section-6.1-3">If the most recent ACK_FREQUENCY frame received from the peer has an <code>Ignore
+Order</code> value of <code>true</code> (0x01), the endpoint does not make this exception. That
+is, the endpoint MUST NOT send an immediate acknowledgement in response to
+packets received out of order, and instead continues to use the peer's <code>Packet
+Tolerance</code> and <code>max_ack_delay</code> thresholds for sending acknowledgements.<a href="#section-6.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="congestion">
@@ -1259,13 +1265,13 @@ met and an acknowledgement is to be sent in response.<a href="#section-6.3-2" cl
       </h2>
 <p id="section-7-1">On sending an update to the peer's <code>max_ack_delay</code>, an endpoint can use this new
 value in later computations of its Probe Timeout (PTO) period; see Section 5.2.1
-of <span>[<a href="#QUIC-RECOVERY" class="xref">QUIC-RECOVERY</a>]</span>. The endpoint MUST however wait until the ACK-FREQUENCY
+of <span>[<a href="#QUIC-RECOVERY" class="xref">QUIC-RECOVERY</a>]</span>. The endpoint MUST however wait until the ACK_FREQUENCY
 frame that carries this new value is acknowledged by the peer.<a href="#section-7-1" class="pilcrow">¶</a></p>
 <p id="section-7-2">Until the frame is acknowledged, the endpoint MUST use the greater of the
 current <code>max_ack_delay</code> and the value that is in flight when computing the PTO
 period. Doing so avoids spurious PTOs that can be caused by an update that
 increases the peer's <code>max_ack_delay</code>.<a href="#section-7-2" class="pilcrow">¶</a></p>
-<p id="section-7-3">While it is expected that endpoints will have only one ACK-FREQUENCY frame in
+<p id="section-7-3">While it is expected that endpoints will have only one ACK_FREQUENCY frame in
 flight at any given time, this extension does not prohibit having more than one
 in flight. Generally, when using <code>max_ack_delay</code> for PTO computations, endpoints
 MUST use the maximum of the current value and all those in flight.<a href="#section-7-3" class="pilcrow">¶</a></p>
