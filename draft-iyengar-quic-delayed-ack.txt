@@ -5,8 +5,8 @@
 QUIC                                                          J. Iyengar
 Internet-Draft                                                    Fastly
 Intended status: Standards Track                                I. Swett
-Expires: 20 September 2020                                        Google
-                                                           19 March 2020
+Expires: 27 January 2021                                          Google
+                                                            26 July 2020
 
 
             Sender Control of Acknowledgement Delays in QUIC
@@ -42,7 +42,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 20 September 2020.
+   This Internet-Draft will expire on 27 January 2021.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Iyengar & Swett         Expires 20 September 2020               [Page 1]
+Iyengar & Swett          Expires 27 January 2021                [Page 1]
 
-Internet-Draft        QUIC Delayed Acknowledgements           March 2020
+Internet-Draft        QUIC Delayed Acknowledgements            July 2020
 
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Iyengar & Swett         Expires 20 September 2020               [Page 2]
+Iyengar & Swett          Expires 27 January 2021                [Page 2]
 
-Internet-Draft        QUIC Delayed Acknowledgements           March 2020
+Internet-Draft        QUIC Delayed Acknowledgements            July 2020
 
 
    (and acknowledgement receiver).  Similarly, "receiver" refers to a
@@ -165,9 +165,9 @@ Internet-Draft        QUIC Delayed Acknowledgements           March 2020
 
 
 
-Iyengar & Swett         Expires 20 September 2020               [Page 3]
+Iyengar & Swett          Expires 27 January 2021                [Page 3]
 
-Internet-Draft        QUIC Delayed Acknowledgements           March 2020
+Internet-Draft        QUIC Delayed Acknowledgements            July 2020
 
 
 3.  Negotiating Extension Use
@@ -180,15 +180,15 @@ Internet-Draft        QUIC Delayed Acknowledgements           March 2020
       minimum amount of time in microseconds by which the endpoint can
       delay an acknowledgement.  Values of 2^24 or greater are invalid,
       and receipt of these values MUST be treated as a connection error
-      of type PROTOCOL_VIOLATION.
+      of type TRANSPORT_PARAMETER_ERROR.
 
    An endpoint's min_ack_delay MUST NOT be greater than the its
    max_ack_delay.  Endpoints that support this extension MUST treat
    receipt of a min_ack_delay that is greater than the received
-   max_ack_delay as a connection error of type PROTOCOL_VIOLATION.  Note
-   that while the endpoint's max_ack_delay transport parameter is in
-   milliseconds (Section 18.2 of [QUIC-TRANSPORT]), min_ack_delay is
-   specified in microseconds.
+   max_ack_delay as a connection error of type
+   TRANSPORT_PARAMETER_ERROR.  Note that while the endpoint's
+   max_ack_delay transport parameter is in milliseconds (Section 18.2 of
+   [QUIC-TRANSPORT]), min_ack_delay is specified in microseconds.
 
    This Transport Parameter is encoded as per Section 18 of
    [QUIC-TRANSPORT].
@@ -221,9 +221,9 @@ Internet-Draft        QUIC Delayed Acknowledgements           March 2020
 
 
 
-Iyengar & Swett         Expires 20 September 2020               [Page 4]
+Iyengar & Swett          Expires 27 January 2021                [Page 4]
 
-Internet-Draft        QUIC Delayed Acknowledgements           March 2020
+Internet-Draft        QUIC Delayed Acknowledgements            July 2020
 
 
    Sequence Number:  A variable-length integer representing the sequence
@@ -234,22 +234,24 @@ Internet-Draft        QUIC Delayed Acknowledgements           March 2020
       number of ack-eliciting packets after which the receiver sends an
       acknowledgement.  A value of 1 will result in an acknowledgement
       being sent for every ack-eliciting packet received.  A value of 0
-      is invalid.
+      is invalid.  Receipt of an invalid value MUST be treated as a
+      connection error of type FRAME_ENCODING_ERROR.
 
    Update Max Ack Delay:  A variable-length integer representing an
       update to the peer's "max_ack_delay" transport parameter
       (Section 18.2 of [QUIC-TRANSPORT]).  The value of this field is in
       microseconds.  Any value smaller than the "min_ack_delay"
-      advertised by this endpoint is invalid.
+      advertised by this endpoint is invalid.  Receipt of an invalid
+      value MUST be treated as a connection error of type
+      PROTOCOL_VIOLATION.
 
    Ignore Order:  An 8-bit field representing a boolean truth value.
       This field MUST have the value 0x00 (representing "false") or 0x01
       (representing "true").  This field can be set to "true" by an
       endpoint that does not wish to receive an immediate
       acknowledgement when the peer observes reordering (Section 6.1).
-
-   Receipt of invalid values in an ACK_FREQUENCY frame MUST be treated
-   as a connection error of type FRAME_ENCODING_ERROR.
+      Receipt of any other value MUST be treated as a connection error
+      of type FRAME_ENCODING_ERROR.
 
    ACK_FREQUENCY frames are ack-eliciting.  However, their loss does not
    require retransmission if an ACK_FREQUENCY frame with a larger
@@ -271,16 +273,17 @@ Internet-Draft        QUIC Delayed Acknowledgements           March 2020
    sequence number of 0 for the first ACK_FREQUENCY frame it constructs
    and sends, and a strictly increasing value thereafter.
 
+
+
+
+
+Iyengar & Swett          Expires 27 January 2021                [Page 5]
+
+Internet-Draft        QUIC Delayed Acknowledgements            July 2020
+
+
    An endpoint MUST allow reordered ACK_FREQUENCY frames to be received
    and processed, see Section 13.3 of [QUIC-TRANSPORT].
-
-
-
-
-Iyengar & Swett         Expires 20 September 2020               [Page 5]
-
-Internet-Draft        QUIC Delayed Acknowledgements           March 2020
-
 
    On the first received ACK_FREQUENCY frame in a connection, an
    endpoint MUST immediately record all values from the frame.  The
@@ -330,12 +333,9 @@ Internet-Draft        QUIC Delayed Acknowledgements           March 2020
 
 
 
-
-
-
-Iyengar & Swett         Expires 20 September 2020               [Page 6]
+Iyengar & Swett          Expires 27 January 2021                [Page 6]
 
-Internet-Draft        QUIC Delayed Acknowledgements           March 2020
+Internet-Draft        QUIC Delayed Acknowledgements            July 2020
 
 
 6.1.  Response to Reordering
@@ -389,9 +389,9 @@ Internet-Draft        QUIC Delayed Acknowledgements           March 2020
 
 
 
-Iyengar & Swett         Expires 20 September 2020               [Page 7]
+Iyengar & Swett          Expires 27 January 2021                [Page 7]
 
-Internet-Draft        QUIC Delayed Acknowledgements           March 2020
+Internet-Draft        QUIC Delayed Acknowledgements            July 2020
 
 
    computing the PTO period.  Doing so avoids spurious PTOs that can be
@@ -445,9 +445,9 @@ Internet-Draft        QUIC Delayed Acknowledgements           March 2020
 
 
 
-Iyengar & Swett         Expires 20 September 2020               [Page 8]
+Iyengar & Swett          Expires 27 January 2021                [Page 8]
 
-Internet-Draft        QUIC Delayed Acknowledgements           March 2020
+Internet-Draft        QUIC Delayed Acknowledgements            July 2020
 
 
    acknowledgments will cause undesirable bursts of data into the
@@ -501,9 +501,9 @@ Authors' Addresses
 
 
 
-Iyengar & Swett         Expires 20 September 2020               [Page 9]
+Iyengar & Swett          Expires 27 January 2021                [Page 9]
 
-Internet-Draft        QUIC Delayed Acknowledgements           March 2020
+Internet-Draft        QUIC Delayed Acknowledgements            July 2020
 
 
    Jana Iyengar
@@ -557,4 +557,4 @@ Internet-Draft        QUIC Delayed Acknowledgements           March 2020
 
 
 
-Iyengar & Swett         Expires 20 September 2020              [Page 10]
+Iyengar & Swett          Expires 27 January 2021               [Page 10]
