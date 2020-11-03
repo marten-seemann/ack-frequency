@@ -5,8 +5,8 @@
 QUIC                                                          J. Iyengar
 Internet-Draft                                                    Fastly
 Intended status: Standards Track                                I. Swett
-Expires: 27 January 2021                                          Google
-                                                            26 July 2020
+Expires: 6 May 2021                                               Google
+                                                         2 November 2020
 
 
             Sender Control of Acknowledgement Delays in QUIC
@@ -42,7 +42,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 27 January 2021.
+   This Internet-Draft will expire on 6 May 2021.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Iyengar & Swett          Expires 27 January 2021                [Page 1]
+Iyengar & Swett            Expires 6 May 2021                   [Page 1]
 
-Internet-Draft        QUIC Delayed Acknowledgements            July 2020
+Internet-Draft        QUIC Delayed Acknowledgements        November 2020
 
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Iyengar & Swett          Expires 27 January 2021                [Page 2]
+Iyengar & Swett            Expires 6 May 2021                   [Page 2]
 
-Internet-Draft        QUIC Delayed Acknowledgements            July 2020
+Internet-Draft        QUIC Delayed Acknowledgements        November 2020
 
 
    (and acknowledgement receiver).  Similarly, "receiver" refers to a
@@ -165,9 +165,9 @@ Internet-Draft        QUIC Delayed Acknowledgements            July 2020
 
 
 
-Iyengar & Swett          Expires 27 January 2021                [Page 3]
+Iyengar & Swett            Expires 6 May 2021                   [Page 3]
 
-Internet-Draft        QUIC Delayed Acknowledgements            July 2020
+Internet-Draft        QUIC Delayed Acknowledgements        November 2020
 
 
 3.  Negotiating Extension Use
@@ -176,11 +176,11 @@ Internet-Draft        QUIC Delayed Acknowledgements            July 2020
    document by sending the following transport parameter (Section 7.2 of
    [QUIC-TRANSPORT]):
 
-   min_ack_delay (0xDE1A):  A variable-length integer representing the
-      minimum amount of time in microseconds by which the endpoint can
-      delay an acknowledgement.  Values of 2^24 or greater are invalid,
-      and receipt of these values MUST be treated as a connection error
-      of type TRANSPORT_PARAMETER_ERROR.
+   min_ack_delay (0xff02de1a):  A variable-length integer representing
+      the minimum amount of time in microseconds by which the endpoint
+      can delay an acknowledgement.  Values of 2^24 or greater are
+      invalid, and receipt of these values MUST be treated as a
+      connection error of type TRANSPORT_PARAMETER_ERROR.
 
    An endpoint's min_ack_delay MUST NOT be greater than the its
    max_ack_delay.  Endpoints that support this extension MUST treat
@@ -204,7 +204,7 @@ Internet-Draft        QUIC Delayed Acknowledgements            July 2020
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                            0xAF (i)                         ...
+   |                            0xaf (i)                         ...
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                      Sequence Number (i)                    ...
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -216,14 +216,14 @@ Internet-Draft        QUIC Delayed Acknowledgements            July 2020
    +-+-+-+-+-+-+-+-+-+
 
    Following the common frame format described in Section 12.4 of
-   [QUIC-TRANSPORT], ACK_FREQUENCY frames have a type of 0xAF, and
+   [QUIC-TRANSPORT], ACK_FREQUENCY frames have a type of 0xaf, and
    contain the following fields:
 
 
 
-Iyengar & Swett          Expires 27 January 2021                [Page 4]
+Iyengar & Swett            Expires 6 May 2021                   [Page 4]
 
-Internet-Draft        QUIC Delayed Acknowledgements            July 2020
+Internet-Draft        QUIC Delayed Acknowledgements        November 2020
 
 
    Sequence Number:  A variable-length integer representing the sequence
@@ -277,9 +277,9 @@ Internet-Draft        QUIC Delayed Acknowledgements            July 2020
 
 
 
-Iyengar & Swett          Expires 27 January 2021                [Page 5]
+Iyengar & Swett            Expires 6 May 2021                   [Page 5]
 
-Internet-Draft        QUIC Delayed Acknowledgements            July 2020
+Internet-Draft        QUIC Delayed Acknowledgements        November 2020
 
 
    An endpoint MUST allow reordered ACK_FREQUENCY frames to be received
@@ -333,9 +333,9 @@ Internet-Draft        QUIC Delayed Acknowledgements            July 2020
 
 
 
-Iyengar & Swett          Expires 27 January 2021                [Page 6]
+Iyengar & Swett            Expires 6 May 2021                   [Page 6]
 
-Internet-Draft        QUIC Delayed Acknowledgements            July 2020
+Internet-Draft        QUIC Delayed Acknowledgements        November 2020
 
 
 6.1.  Response to Reordering
@@ -389,9 +389,9 @@ Internet-Draft        QUIC Delayed Acknowledgements            July 2020
 
 
 
-Iyengar & Swett          Expires 27 January 2021                [Page 7]
+Iyengar & Swett            Expires 6 May 2021                   [Page 7]
 
-Internet-Draft        QUIC Delayed Acknowledgements            July 2020
+Internet-Draft        QUIC Delayed Acknowledgements        November 2020
 
 
    computing the PTO period.  Doing so avoids spurious PTOs that can be
@@ -445,9 +445,9 @@ Internet-Draft        QUIC Delayed Acknowledgements            July 2020
 
 
 
-Iyengar & Swett          Expires 27 January 2021                [Page 8]
+Iyengar & Swett            Expires 6 May 2021                   [Page 8]
 
-Internet-Draft        QUIC Delayed Acknowledgements            July 2020
+Internet-Draft        QUIC Delayed Acknowledgements        November 2020
 
 
    acknowledgments will cause undesirable bursts of data into the
@@ -501,9 +501,9 @@ Authors' Addresses
 
 
 
-Iyengar & Swett          Expires 27 January 2021                [Page 9]
+Iyengar & Swett            Expires 6 May 2021                   [Page 9]
 
-Internet-Draft        QUIC Delayed Acknowledgements            July 2020
+Internet-Draft        QUIC Delayed Acknowledgements        November 2020
 
 
    Jana Iyengar
@@ -557,4 +557,4 @@ Internet-Draft        QUIC Delayed Acknowledgements            July 2020
 
 
 
-Iyengar & Swett          Expires 27 January 2021               [Page 10]
+Iyengar & Swett            Expires 6 May 2021                  [Page 10]
