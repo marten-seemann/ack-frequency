@@ -261,7 +261,8 @@ frame is more recent than any previous ones, as follows:
 
 # Sending Acknowledgments {#sending}
 
-Prior to receiving an ACK_FREQUENCY frame, endpoints send acknowledgements as
+Prior to receiving an ACK_FREQUENCY frame, and for packets received in the
+Initial and Handshake packet number space, endpoints send acknowledgements as
 specified in Section 13.2.1 of {{QUIC-TRANSPORT}}.
 
 On receiving an ACK_FREQUENCY frame and updating its recorded `max_ack_delay`
