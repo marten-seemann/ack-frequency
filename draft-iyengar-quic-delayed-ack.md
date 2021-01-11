@@ -216,6 +216,10 @@ Ignore Order:
   of any other value MUST be treated as a connection error of type
   FRAME_ENCODING_ERROR.
 
+ACK_FREQUENCY frames can only be send in 0-RTT and in Short Header packets.
+An endpoint MUST treat receipt of an ACK_FREQUENCY frame in an Initial or in a
+Handshake packet as a connection error of type PROTOCOL_VIOLATION.
+
 ACK_FREQUENCY frames are ack-eliciting. However, their loss does not require
 retransmission if an ACK_FREQUENCY frame with a larger Sequence Number value
 has been sent.
